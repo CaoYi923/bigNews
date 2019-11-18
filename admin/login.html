@@ -38,6 +38,67 @@
     </div>
   </div>
 
+
+
+  <div class="modal fade" tabindex="-1" role="dialog" id="myModal">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <!-- <h4 class="modal-title">Modal title</h4> -->
+        </div>
+        <div class="modal-body">
+          <p>&hellip;</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success" data-dismiss="modal" id="btn">确定</button>
+
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
 </body>
+<script>
+  $(function () {
+    var input_txt = $(".input_txt")
+    var input_pass = $(".input_pass")
+    var input_sub = $(".input_sub")
+    input_sub.click(function (e) {
+      e.preventDefault()
+      // console.log("11")
+      let username = input_txt.val();
+      let password = input_pass.val()
+      if (username === "" || password === "") {
+        $('#myModal').modal()
+        $(".modal-body").html("请输入正确的账号密码")
+      } else {
+        $.ajax({
+          type: "post",
+          url: "http://localhost:8080/api/v1/admin/user/login",
+          data: {
+            username,
+            password
+          },
+          success: function (res) {
+            console.log(res)
+            if (res.code === 200) {
+              localStorage.setItem("token",res.token)
+              $('#myModal').modal()
+              $(".modal-body").html(res.msg)
+              $("#btn").click(function () {
+                window.location.href = "./index.html"
+              })
+
+            }
+
+          }
+        })
+      }
+
+    })
+
+  })
+</script>
 
 </html>

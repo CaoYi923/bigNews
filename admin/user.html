@@ -70,4 +70,28 @@
     </div>
 </body>
 
+<script>
+
+$(document).ready(function(){
+    $.ajax({
+        type:"get",
+        url:'http://localhost:8080/api/v1/admin/user/detail',
+        success:function(res){
+            console.log(res)
+            var data = res.data
+            $("#inputEmail1").val(data.nickname)
+            $("#inputEmail2").val(data.username)
+            $("#inputEmail3").val(data.email)
+            $(".user_pic").attr("src",data.userPic)
+            $("#inputEmail4").val(data.password)
+        }
+    })
+   
+
+  
+
+
+})
+
+</script>
 </html>
