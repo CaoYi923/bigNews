@@ -31,14 +31,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
+                    <!-- <tr>
                         <td>奇趣事</td>
                         <td>funny</td>
                         <td class="text-center">
                             <a href="javascript:void(0)" data-toggle="modal" class=" btn btn-info btn-xs">编辑</a>
                             <a href="javascript:void(0)" class="btn btn-danger btn-xs">删除</a>
                         </td>
-                    </tr>
+                    </tr> -->
                 </tbody>
                 <tfoot>
                     <tr>
@@ -51,5 +51,32 @@
             </table>
         </div>
     </div>
+    <script src="./libs/template-web.js"></script>
+
+    <script type="text/html" id="text">
+        {{each}}
+        <tr>
+            <td>{{$value.name}}</td>
+            <td>{{$value.slug}}</td>
+            <td class="text-center">
+                <a href="javascript:void(0)" data-toggle="modal" class=" btn btn-info btn-xs">编辑</a>
+                <a href="javascript:void(0)" class="btn btn-danger btn-xs">删除</a>
+            </td>
+        </tr>
+        {{/each}}
+    </script>
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                type: "get",
+                url: BigNew.category_list,
+                success: function (res) {
+                    console.log(res.data)
+                    var a = template("text", res.data)
+                    $("tbody").html(a)
+                }
+            })
+        })
+    </script>
 
 </html>

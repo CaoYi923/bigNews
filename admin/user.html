@@ -6,15 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>文章列表</title>
-    <link rel="stylesheet" href="./libs/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/reset.css">
-    <link rel="stylesheet" href="css/iconfont.css">
-    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" type="text/css" href="css/reset.css" />
+    <link rel="stylesheet" type="text/css" href="css/iconfont.css" />
+    <link rel="stylesheet" type="text/css" href="css/main.css" />
+    <!-- 引入bootstrap的css文件 -->
+    <link rel="stylesheet" href="./libs/bootstrap/css/bootstrap.min.css" />
+    <!-- 引入jq文件 -->
     <script src="./libs/jquery-1.12.4.min.js"></script>
-
+    <!-- 引入bootstrap的js文件 -->
+    <script src="./libs/bootstrap/js/bootstrap.min.js"></script>
+    <style>
+    .modal-dialog{z-index: 33;}
+    .modal-backdrop{z-index: 0;}
+    </style>
 </head>
 
 <body>
+        
     <div class="container-fluid">
         <div class="common_title">
             用户信息修改
@@ -68,30 +76,94 @@
             </form>
         </div>
     </div>
+
+    <!-- 遮罩层的HTML文件 -->
+    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel" id="myModal1">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="gridSystemModalLabel">温馨提示:</h4>
+                </div>
+                <div class="modal-body">
+                  <div class="row">
+                    <div class="col-md-4">.col-md-4</div>
+                    <div class="col-md-4 col-md-offset-4">.col-md-4 .col-md-offset-4</div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-3 col-md-offset-3">.col-md-3 .col-md-offset-3</div>
+                    <div class="col-md-2 col-md-offset-4">.col-md-2 .col-md-offset-4</div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 col-md-offset-3">.col-md-6 .col-md-offset-3</div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-9">
+                      Level 1: .col-sm-9
+                      <div class="row">
+                        <div class="col-xs-8 col-sm-6">
+                          Level 2: .col-xs-8 .col-sm-6
+                        </div>
+                        <div class="col-xs-4 col-sm-6">
+                          Level 2: .col-xs-4 .col-sm-6
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal" id="btn">确定</button>
+                 
+                </div>
+              </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+          </div><!-- /.modal -->
 </body>
 
 <script>
-
-$(document).ready(function(){
-    $.ajax({
-        type:"get",
-        url:'http://localhost:8080/api/v1/admin/user/detail',
-        success:function(res){
-            console.log(res)
-            var data = res.data
-            $("#inputEmail1").val(data.nickname)
-            $("#inputEmail2").val(data.username)
-            $("#inputEmail3").val(data.email)
-            $(".user_pic").attr("src",data.userPic)
-            $("#inputEmail4").val(data.password)
+    $(document).ready(function () {
+        function ajax() {
+            $.ajax({
+                type: "get",
+                url: BigNew.user_detail,
+                success: function (res) {
+                    console.log(res)
+                    var data = res.data
+                    $("#inputEmail1").val(data.nickname)
+                    $("#inputEmail2").val(data.username)
+                    $("#inputEmail3").val(data.email)
+                    $(".user_pic").attr("src", data.userPic)
+                    $("#inputEmail4").val(data.password)
+                }
+            })
         }
+
+        ajax()
+        console.log("window",window)
+        $("#form").submit(function (e) {
+            e.preventDefault()
+            console.log(this)
+            $.ajax({
+                type: "post",
+                url: BigNew.user_edit,
+                data: new FormData(this),
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    $('#myModal1').modal();
+                    $('.modal-backdrop')[0].style.display="none"
+                    $(".modal-body").html(res.msg)
+                    // location.reload()   
+                }
+            })
+
+        })
+
+
     })
-   
-
-  
-
-
-})
-
+    $("#btn").click(function(){
+        location.reload()
+    })
 </script>
+
 </html>

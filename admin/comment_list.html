@@ -32,7 +32,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
+          <!-- <tr>
             <td>小周</td>
             <td>这是一条测试评论，欢迎光临</td>
             <td>《世界，你好》</td>
@@ -138,7 +138,7 @@
               <a href="javascript:editTr( 'rejected',11 );" class="btn btn-warning btn-xs">拒绝</a>
               <a href="javascript:editTr( 'trashed',11 );" class="btn btn-danger btn-xs">删除</a>
             </td>
-          </tr>
+          </tr> -->
         </tbody>
       </table>
       <div class="row text-center">
@@ -161,5 +161,37 @@
     </div>
   </div>
 </body>
+<script src="./libs/template-web.js"></script>
+<script type="text/html" id="list">
+{{each}}
+<tr>
+    <td>{{$value.articleId}}</td>
+    <td>{{$value.title}}</td>
+    <td>《{{$value.content}}》</td>
+    <td>{{$value.date}} {{$value.time}}</td>
+    <td>{{$value.state}}</td>
+    <td class="text-center">
+      <a href="javascript:editTr( 'trashed',10 );" class="btn btn-danger btn-xs">删除</a>
+    </td>
+  </tr>
+{{/each}}
+</script>
+<script>
 
+$.ajax({
+  type:"get",
+  url:BigNew.comment_list,
+  data:{
+    page:1,
+    perpage:10
+  },
+  success:function(res){
+    console.log(res)
+    var a = template("list",res.data.data)
+    console.log(a)
+    $("tbody").html(a)
+  }
+})
+
+</script>
 </html>
