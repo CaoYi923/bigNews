@@ -43,7 +43,7 @@
                 <tfoot>
                     <tr>
                         <td colspan="3" class="text-center">
-                            <a href="javascript:void(0)" class="btn btn-success" id="xinzengfenlei" data-toggle="modal"
+                            <a href="#" class="btn btn-success" id="xinzengfenlei" data-toggle="modal"
                                 data-target="#myModal">新增分类</a>
                         </td>
                     </tr>
@@ -51,33 +51,201 @@
             </table>
         </div>
     </div>
-    </body>
-    <script src="./libs/template-web.js"></script>
 
-    <script type="text/html" id="text">
-        {{each}}
-        <tr>
-            <td>{{$value.name}}</td>
-            <td>{{$value.slug}}</td>
-            <td class="text-center">
-                <a href="javascript:void(0)" data-toggle="modal" class=" btn btn-info btn-xs">编辑</a>
-                <a href="javascript:void(0)" class="btn btn-danger btn-xs">删除</a>
-            </td>
-        </tr>
-        {{/each}}
-    </script>
-    <script>
-        $(document).ready(function () {
-            $.ajax({
-                type: "get",
-                url: BigNew.category_list,
-                success: function (res) {
-                    console.log(res.data)
+    <!-- bootStrap模态框 -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <input type="text" style="display: none;" class="inputValue">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">文章类别</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">分类名称:</label>
+                            <input type="text" class="form-control" id="recipient-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="control-label">分类别名:</label>
+                            <textarea class="form-control" id="message-text"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消编辑</button>
+                    <button type="button" class="btn btn-success new">新增</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+<script src="./libs/http.js"></script>
+<script src="./libs/template-web.js"></script>
+
+<script type="text/html" id="text">
+    {{each}}
+    <tr>
+        <td>{{$value.name}}</td>
+        <td>{{$value.slug}}</td>
+        <td class="text-center">
+            <a href="#" data-toggle="modal" class=" btn btn-info btn-xs redact" data-target="#myModal"
+                data-id="{{$value.id}}">编辑</a>
+            <a href="#" class="btn btn-danger btn-xs delete" data-id="{{$value.id}}">删除</a>
+        </td>
+    </tr>
+    {{/each}}
+</script>
+<script>
+    $(document).ready(function () {
+        //先让所有的a的冒泡事件关闭
+        $("a").click(function (e) {
+            e.preventDefault()
+        })
+        //页面最开始的时候调用Ajax获取页面数据
+        $.ajax({
+            type: "get",
+            url: BigNew.category_list,
+            success: function (res) {
+                console.log(res)
+                if (res.code === 200) {
                     var a = template("text", res.data)
                     $("tbody").html(a)
                 }
+
+            }
+        })
+
+        //先点击新增让模态框出来
+
+        $("#myModal").on('show.bs.modal', function (e) {
+            // console.log()
+            if ($(e.relatedTarget).html() === "新增分类") {
+                $("#exampleModalLabel").html("新增文章类别")
+                $(".new").html("新增")
+                $(".btn-default").hide()
+                $(".form-control").val("")
+            } else {
+                $("#exampleModalLabel").html("修改文章类别")
+                $(".btn-default").show()
+                $(".new").html("确定编辑")
+            }
+        })
+
+
+        //点击编辑的时候获取id调用数据
+        $("tbody").on("click", ".redact", function () {
+            $.ajax({
+                type: "get",
+                url: BigNew.category_search,
+                data: {
+                    id: $(this).attr("data-id"),
+                },
+                success: function (res) {
+                    console.log(res.data)
+                    var data = res.data[0]
+                    if (res.code === 200) {
+                        $("#recipient-name").val(data.name)
+                        $("#message-text").val(data.slug)
+                        $(".inputValue").val(data.id)
+                    }
+                }
             })
         })
-    </script>
+
+        //修改完之后点击编辑调用的接口
+        $(".new").click(function () {
+            var name = $("#recipient-name").val()
+            var slug = $("#message-text").val()
+            var id = $(".inputValue").val()
+            if ($(this).html() === "确定编辑") {
+                $.ajax({
+                    type: "post",
+                    url: BigNew.category_edit,
+                    data: {
+                        id: +id,
+                        name,
+                        slug
+                    },
+                    success: function (res) {
+                        console.log(res)
+                        if (res.code === 200) {
+                            $('#myModal').modal('hide')
+                            $.ajax({
+                                type: "get",
+                                url: BigNew.category_list,
+                                success: function (res) {
+                                    console.log(res)
+                                    if (res.code === 200) {
+                                        var a = template("text", res.data)
+                                        $("tbody").html(a)
+                                    }
+
+                                }
+                            })
+                        }
+                    }
+                })
+            } else {
+                $.ajax({
+                    type: "post",
+                    url: BigNew.category_add,
+                    data: {
+                        name,
+                        slug
+                    },
+                    success: function (res) {
+                        console.log(res)
+                        if (res.code === 201) {
+                            $('#myModal').modal('hide')
+                            $.ajax({
+                                type: "get",
+                                url: BigNew.category_list,
+                                success: function (res) {
+                                    console.log(res)
+                                    if (res.code === 200) {
+                                        var a = template("text", res.data)
+                                        $("tbody").html(a)
+                                    }
+
+                                }
+                            })
+                        }
+                    }
+                })
+            }
+        })
+        $("tbody").on("click", ".delete", function () {
+            // console.log()
+            var id = $(this).attr("data-id")
+            $.ajax({
+                type: "post",
+                url: BigNew.category_delete,
+                data: {
+                    id
+                },
+                success: function (res) {
+                    if (res.code === 204) {
+                        $.ajax({
+                            type: "get",
+                            url: BigNew.category_list,
+                            success: function (res) {
+                                console.log(res)
+                                if (res.code === 200) {
+                                    var a = template("text", res.data)
+                                    $("tbody").html(a)
+                                }
+
+                            }
+                        })
+                    }
+                }
+            })
+        })
+    })
+</script>
 
 </html>

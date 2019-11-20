@@ -162,9 +162,10 @@
   </div>
 </body>
 <script src="./libs/template-web.js"></script>
+<script src="./libs/http.js"></script>
 <script type="text/html" id="list">
-{{each}}
-<tr>
+  {{each}}
+  <tr>
     <td>{{$value.articleId}}</td>
     <td>{{$value.title}}</td>
     <td>《{{$value.content}}》</td>
@@ -174,24 +175,23 @@
       <a href="javascript:editTr( 'trashed',10 );" class="btn btn-danger btn-xs">删除</a>
     </td>
   </tr>
-{{/each}}
+  {{/each}}
 </script>
 <script>
-
-$.ajax({
-  type:"get",
-  url:BigNew.comment_list,
-  data:{
-    page:1,
-    perpage:10
-  },
-  success:function(res){
-    console.log(res)
-    var a = template("list",res.data.data)
-    console.log(a)
-    $("tbody").html(a)
-  }
-})
-
+  $.ajax({
+    type: "get",
+    url: BigNew.comment_list,
+    data: {
+      page: 1,
+      perpage: 10
+    },
+    success: function (res) {
+      console.log(res)
+      var a = template("list", res.data.data)
+      console.log(a)
+      $("tbody").html(a)
+    }
+  })
 </script>
+
 </html>
