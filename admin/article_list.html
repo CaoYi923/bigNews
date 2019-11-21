@@ -13,6 +13,7 @@
     <script src="./libs/jquery-1.12.4.min.js"></script>
     <!-- 引入模板引擎js文件 -->
     <script src="./libs/template-web.js"></script>
+    <script src="./libs/jquery.twbsPagination.min.js"></script>
 </head>
 
 <body>
@@ -25,11 +26,11 @@
                 <div class="col-xs-6">
                     <form class="form-inline">
                         <select id="selCategory" name="" class="form-control input-sm">
-                            <option value="">所有分类</option>
+                            <!-- <option value="">所有分类</option>
                             <option>未分类</option>
                             <option>奇趣事</option>
                             <option>会生活</option>
-                            <option>爱旅行</option>
+                            <option>爱旅行</option> -->
                         </select>
                         <select id="selStatus" name="" class="form-control input-sm">
                             <option value="">所有状态</option>
@@ -55,7 +56,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
+                    <!-- <tr>
                         <td>王积千造统最头</td>
                         <td>杰克</td>
                         <td>奇趣事</td>
@@ -65,13 +66,200 @@
                             <a href="article_edit.html" class="btn btn-default btn-xs">编辑</a>
                             <a href="javascript:void(0);" class="btn btn-danger btn-xs delete">删除</a>
                         </td>
-                    </tr>
+                    </tr> -->
                 </tbody>
             </table>
             <div class="row text-center">
+
+
+                <ul class="pagination" id="pagination"></ul>
+
+
             </div>
         </div>
     </div>
 </body>
+<script src="./libs/http.js"></script>
+<script type="text/html" id="list">
+    <option value="">所有分类</option>
+    {{each}}
+    <option value="{{$value.id}}">{{$value.name}}</option>
+    {{/each}}
+</script>
+<script type="text/html" id="list1">
+    {{each}}
+    <tr>
+        <td>{{$value.title}}</td>
+        <td>{{$value.author}}</td>
+        <td>{{$value.category}}</td>
+        <td class="text-center">{{$value.date}}</td>
+        <td class="text-center">{{$value.state}}</td>
+        <td class="text-center">
+            <a href="article_edit.html" data-id="{{$value.id}}" class="btn btn-default btn-xs">编辑</a>
+            <a href="#" data-id="{{$value.id}}" class="btn btn-danger btn-xs delete">删除</a>
+        </td>
+    </tr>
+    {{/each}}
+</script>
+<script>
+    $(document).ready(function () {
+        var key = $("#selCategory").val()
+        var state = $("#selStatus").val()
+        var perpage = 8;
+        var myPage = 1
+        //先获取所有的分类
+        $.ajax({
+            type: "get",
+            url: BigNew.category_list,
+            success: function (res) {
+                // console.log("11111", res)
+                if (res.code === 200) {
+                    var data = template("list", res.data)
+                    $("#selCategory").html(data)
+                }
+
+            }
+        })
+        //在获取所有的list的数据
+        $.ajax({
+            type: "get",
+            url: BigNew.article_query,
+            data: {
+                key,
+                state,
+                page: 1,
+                perpage: 8
+            },
+            success: function (res) {
+                console.log("res", res)
+                if (res.code === 200) {
+                    var data = template("list1", res.data.data)
+                    $("tbody").html(data)
+                    //分页
+                    $("#pagination").twbsPagination({
+                        totalPages: res.data.totalPage,
+                        visiblepages: 7,
+                        first: "首页",
+                        prev: "上一页",
+                        next: "下一页",
+                        last: "尾页",
+                        onPageClick: function (event, page) {
+                            var id = $("#selCategory").val()
+                            var state = $("#selStatus").val()
+                            
+                            myPage = page
+                            $.ajax({
+                                type: "get",
+                                url: BigNew.article_query,
+                                data: {
+
+                                    state: state,
+                                    page: page,
+                                    type: id,
+                                    perpage: 8
+                                },
+                                success: function (res) {
+                                    if (res.code === 200 && res.data.data
+                                        .length != 0) {
+                                        var data = template("list1", res
+                                            .data.data)
+                                        $("tbody").html(data)
+                                    } else {
+                                        // $("#pagination").hide()
+                                        // $("tbody").html("")
+                                    }
+                                }
+                            })
+                        }
+                    })
+                }
+            }
+        })
+
+
+        //点击筛选按钮的时候
+        $("#btnSearch").click(function (e) {
+            e.preventDefault()
+            var id = $("#selCategory").val();
+            var state = $("#selStatus").val()
+            console.log(id, state)
+            $.ajax({
+                type: "get",
+                url: BigNew.article_query,
+                data: {
+
+                    state: state,
+                    page: 1,
+                    type: id,
+                    perpage: 8
+                },
+                success: function (res) {
+                    console.log("this", res)
+                    if (res.code === 200 && res.data.data.length != 0) {
+                        var data = template("list1", res.data.data)
+
+                        $("tbody").html(data)
+                        // $("#pagination").show()
+
+                        $('#pagination').twbsPagination('changeTotalPages', res.data
+                            .totalPage, 1);
+
+                    } else {
+                        $("tbody").html("")
+                        // $("#pagination").hide()
+                    }
+                }
+            })
+        })
+        //删除事件
+        $("tbody").on("click", ".delete", function (e) {
+            e.preventDefault()
+            if (confirm("你确定要删除吗？")) {
+                console.log("page",myPage)
+                $.ajax({
+                    type: "post",
+                    url: BigNew.article_delete,
+                    data: {
+                        id: $(this).attr("data-id")
+                    },
+                    success: function (res) {
+                        // console.log(res)
+                        if (res.code === 204) {
+                            // $('#pagination').twbsPagination('changeTotalPages', res.data.totalPage, 1);
+                            var id = $("#selCategory").val();
+                            var state = $("#selStatus").val()
+                            
+                            $.ajax({
+                                type: "get",
+                                url: BigNew.article_query,
+                                data: {
+                                    state: state,
+                                    page: myPage,
+                                    type: id,
+                                    perpage: 8
+                                },
+                                success: function (res) {
+                                    if(res.code === 200){
+                                        var data = template("list1", res.data.data)
+                                        $("tbody").html(data)
+                                        console.log( res)
+                                        if(res.data.data.length != 0){
+                                            $('#pagination').twbsPagination('changeTotalPages', res.data.totalPage, myPage);
+                                        }else{
+                                            $('#pagination').twbsPagination('changeTotalPages', res.data.totalPage, myPage-1);
+                                        }
+                                    }
+                                   
+                                       
+                                }
+                            })
+                        }
+                    }
+                })
+            }
+
+        })
+    })
+</script>
 
 </html>
