@@ -142,7 +142,7 @@
         </tbody>
       </table>
       <div class="row text-center">
-        <ul class="pagination pagination-sm">
+        <!-- <ul class="pagination pagination-sm">
           <li class="page-item first disabled"><a href="#" class="page-link">首页</a></li>
           <li class="page-item prev disabled"><a href="#" class="page-link">上一页</a></li>
           <li class="page-item active"><a href="#" class="page-link">1</a></li>
@@ -155,7 +155,7 @@
           <li class="page-item next"><a href="#" class="page-link">下一页</a></li>
           <li class="page-item last"><a href="#" class="page-link">尾页</a></li>
         </ul>
-        <ul id="pagination" class="pagination-sm"></ul>
+        <ul id="pagination" class="pagination-sm"></ul> -->
       </div>
 
     </div>
@@ -165,20 +165,32 @@
 <script src="./libs/http.js"></script>
 <script type="text/html" id="list">
   {{each}}
-  <tr>
-    <td>{{$value.articleId}}</td>
+    {{if $value.state ==='待审核'}}
+    <tr class="danger">
+    {{else}}
+    <tr>
+    {{/if}}
+      
+    <td>{{$value.author}}</td>
     <td>{{$value.title}}</td>
     <td>《{{$value.content}}》</td>
-    <td>{{$value.date}} {{$value.time}}</td>
+    <td>{{$value.date}}</td>
     <td>{{$value.state}}</td>
     <td class="text-center">
-      <a href="javascript:editTr( 'trashed',10 );" class="btn btn-danger btn-xs">删除</a>
+      {{if $value.state ==='待审核' || $value.state ==='已拒绝'}}
+      <a href="#" class="btn btn-success btn-xs" data-id="{{$value.articleId}}">通过</a>
+      {{else if $value.state ==='已通过'}}
+      <a href="#" class="btn btn-warning btn-xs" data-id="{{$value.articleId}}">不通过</a>
+      {{/if}}
+      <!-- <a href="javascript:editTr( 'rejected',11 );" class="btn btn-warning btn-xs">拒绝</a> -->
+      <a href="#" class="btn btn-danger btn-xs" data-id="{{$value.articleId}}">删除</a>
     </td>
   </tr>
   {{/each}}
 </script>
 <script>
-  $.ajax({
+  $(document).ready(function(){
+    $.ajax({
     type: "get",
     url: BigNew.comment_list,
     data: {
@@ -192,6 +204,13 @@
       $("tbody").html(a)
     }
   })
+
+  $("tbody").on("click",".btn-success",function(e){
+    e.preventDefault()
+    console.log($(this).attr("data-id"))
+  })
+  })
+ 
 </script>
 
 </html>

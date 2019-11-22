@@ -95,7 +95,7 @@
         <td class="text-center">{{$value.date}}</td>
         <td class="text-center">{{$value.state}}</td>
         <td class="text-center">
-            <a href="article_edit.html" data-id="{{$value.id}}" class="btn btn-default btn-xs">编辑</a>
+            <a href="article_edit.html?id={{$value.id}}" class="btn btn-default btn-xs modify">编辑</a>
             <a href="#" data-id="{{$value.id}}" class="btn btn-danger btn-xs delete">删除</a>
         </td>
     </tr>
@@ -131,7 +131,7 @@
                 perpage: 8
             },
             success: function (res) {
-                console.log("res", res)
+                // console.log("res", res)
                 if (res.code === 200) {
                     var data = template("list1", res.data.data)
                     $("tbody").html(data)
@@ -160,13 +160,13 @@
                                 },
                                 success: function (res) {
                                     if (res.code === 200 && res.data.data
-                                        .length != 0) {
+                                        .length != 0 &&res.data.length !=0) {
                                         var data = template("list1", res
                                             .data.data)
                                         $("tbody").html(data)
                                     } else {
                                         // $("#pagination").hide()
-                                        // $("tbody").html("")
+                                        $("tbody").html("<h1 style='font-size:20px;line-height:40px;color:red'>亲！没有数据呢。</h1>")
                                     }
                                 }
                             })
@@ -182,7 +182,7 @@
             e.preventDefault()
             var id = $("#selCategory").val();
             var state = $("#selStatus").val()
-            console.log(id, state)
+            // console.log(id, state)
             $.ajax({
                 type: "get",
                 url: BigNew.article_query,
@@ -194,7 +194,7 @@
                     perpage: 8
                 },
                 success: function (res) {
-                    console.log("this", res)
+                    // console.log("this", res)
                     if (res.code === 200 && res.data.data.length != 0) {
                         var data = template("list1", res.data.data)
 
@@ -215,7 +215,7 @@
         $("tbody").on("click", ".delete", function (e) {
             e.preventDefault()
             if (confirm("你确定要删除吗？")) {
-                console.log("page",myPage)
+                // console.log("page",myPage)
                 $.ajax({
                     type: "post",
                     url: BigNew.article_delete,
@@ -242,7 +242,7 @@
                                     if(res.code === 200){
                                         var data = template("list1", res.data.data)
                                         $("tbody").html(data)
-                                        console.log( res)
+                                        // console.log( res)
                                         if(res.data.data.length != 0){
                                             $('#pagination').twbsPagination('changeTotalPages', res.data.totalPage, myPage);
                                         }else{
@@ -259,6 +259,9 @@
             }
 
         })
+
+        
+
     })
 </script>
 
