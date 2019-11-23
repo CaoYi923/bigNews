@@ -20,6 +20,9 @@
         comment_pass:    baseURL + '/admin/comment/pass',//文章评论通过
         comment_reject:  baseURL + '/admin/comment/reject',//文章评论不通过
         comment_delete:  baseURL + '/admin/comment/delete',//文章评论删除
+        index_hotpic:    baseURL + '/index/hotpic',//首页的热点图
+        index_latest:    baseURL + '/index/latest',//首页最新资讯
+        index_rank:      baseURL + '/index/rank'
     };
 
     //暴露接口
